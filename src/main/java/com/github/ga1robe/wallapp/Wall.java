@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 interface Structure {
     // zwraca dowolny element o podanym kolorze
@@ -16,79 +17,6 @@ interface Structure {
     int count();
 }
 
-public class Wall implements Structure {
-    private ComposeBlock composeBlock = new ComposeBlock();
-
-    public void addStruckBlock(String color, String material) {
-        composeBlock.addBlock(new StruckBlock(color,material));
-    }
-
-    public class ComposeBlock implements CompositeBlock {
-        private List<StruckBlock> struckBlockList = new ArrayList<>();
-
-        public void addBlock(StruckBlock struckBlock){
-            struckBlockList.add(struckBlock);
-        }
-
-        @Override
-        public String getColor() {
-            return struckBlockList.stream().map(x -> x.getColor()).collect(Collectors.joining());
-        }
-
-        @Override
-        public String getMaterial() {
-            return struckBlockList.stream().map(x -> x.getMaterial()).collect(Collectors.joining());
-        }
-
-        @Override
-        public List getBlocks() {
-            return struckBlockList;
-        }
-    }
-
-    public class StruckBlock implements Block {
-
-        private String color;
-        private String material;
-
-        public StruckBlock(String color, String material) {
-            this.color = color;
-            this.material = material;
-        }
-
-        @Override
-        public String getColor() {
-            return this.color;
-        }
-
-        @Override
-        public String getMaterial() {
-            return this.material;
-        }
-    }
-
-    @Override
-    public Optional findBlockByColor(String color) {
-        List blocks = composeBlock.getBlocks();
-        if(blocks.isEmpty())
-            return Optional.empty();
-        else
-            return blocks.stream().map(b -> ((StruckBlock) b).getColor()).filter(b -> b.equals(color)).findAny();
-    }
-
-    @Override
-    public List findBlocksByMaterial(String material) {
-        List blocks = composeBlock.getBlocks();
-        return (List) blocks.stream().map(b -> ((StruckBlock) b).getMaterial()).filter(b -> b.equals(material)).collect(Collectors.toList());
-    }
-
-    @Override
-    public int count() {
-        List blocks = composeBlock.getBlocks();
-        return blocks.size();
-    }
-}
-
 interface Block {
     String getColor();
     String getMaterial();
@@ -96,4 +24,91 @@ interface Block {
 
 interface CompositeBlock extends Block {
     List getBlocks();
+}
+
+class CompositeBlockImpl implements CompositeBlock {
+    private List<Block> blocks;
+
+    CompositeBlockImpl(List<Block> blocks) {
+        this.blocks = blocks;
+    }
+
+    @Override
+    public String getColor() {
+        return null;
+    }
+
+    @Override
+    public String getMaterial() {
+        return null;
+    }
+
+    @Override
+    public List getBlocks() {
+        return blocks;
+    }
+}
+
+class BlockImpl implements Block {
+
+    @Override
+    public String getColor() {
+        return null;
+    }
+
+    @Override
+    public String getMaterial() {
+        return null;
+    }
+}
+
+public class Wall implements Structure {
+    private List<Block> blocks;
+
+    public Wall(List<Block> blocks) {
+        this.blocks = blocks;
+    }
+
+    private Stream<Block> getBlocksStream(Block block) {
+        if (block instanceof CompositeBlock) {
+            return Stream.concat(Stream.of(block),((CompositeBlock)block).getBlocks().stream().flatMap(b -> getBlocksStream((Block) b)));
+        }
+        return Stream.of(block);
+    }
+
+    private Stream<Block> getStream() {
+        return this.blocks.stream().flatMap(b -> this.getBlocksStream(b));
+    }
+
+    @Override
+    public Optional findBlockByColor(String color) {
+        return null;
+    }
+
+    @Override
+    public List findBlocksByMaterial(String material) {
+        return null;
+    }
+
+    @Override
+    public int count() {
+        return (int)getStream().count();
+    }
+
+    public static void main(String[] args) {
+        List<Block> blocks = new ArrayList<Block>();
+        blocks.add(new BlockImpl());
+        blocks.add(new BlockImpl());
+
+        List<Block> blocks2 = new ArrayList<Block>();
+        blocks2.add(new BlockImpl());
+        blocks2.add(new BlockImpl());
+        blocks2.add(new BlockImpl());
+
+        CompositeBlock comp = new CompositeBlockImpl(blocks2);
+        blocks.add(comp);
+
+        Wall w = new Wall(blocks);
+        System.out.println(w.count());
+    }
 }
