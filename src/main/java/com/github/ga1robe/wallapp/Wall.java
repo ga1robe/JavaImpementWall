@@ -35,12 +35,12 @@ class CompositeBlockImpl implements CompositeBlock {
 
     @Override
     public String getColor() {
-        return null;
+        return blocks.stream().map(b -> b.getColor()).collect(Collectors.joining(","));
     }
 
     @Override
     public String getMaterial() {
-        return null;
+        return blocks.stream().map(b -> b.getMaterial()).collect(Collectors.joining(","));
     }
 
     @Override
@@ -50,15 +50,22 @@ class CompositeBlockImpl implements CompositeBlock {
 }
 
 class BlockImpl implements Block {
+    private String color;
+    private String material;
+
+    public BlockImpl(String color, String material) {
+        this.color = color;
+        this.material = material;
+    }
 
     @Override
     public String getColor() {
-        return null;
+        return this.color;
     }
 
     @Override
     public String getMaterial() {
-        return null;
+        return this.material;
     }
 }
 
@@ -82,12 +89,12 @@ public class Wall implements Structure {
 
     @Override
     public Optional findBlockByColor(String color) {
-        return null;
+        return getStream().map(b -> b.getColor()).filter(b -> b == color).findFirst();
     }
 
     @Override
     public List findBlocksByMaterial(String material) {
-        return null;
+        return getStream().map(b -> b.getMaterial()).filter(b -> b == material).collect(Collectors.toList());
     }
 
     @Override
@@ -97,18 +104,20 @@ public class Wall implements Structure {
 
     public static void main(String[] args) {
         List<Block> blocks = new ArrayList<Block>();
-        blocks.add(new BlockImpl());
-        blocks.add(new BlockImpl());
+        blocks.add(new BlockImpl("color1","material1"));
+        blocks.add(new BlockImpl("color1","material1"));
 
         List<Block> blocks2 = new ArrayList<Block>();
-        blocks2.add(new BlockImpl());
-        blocks2.add(new BlockImpl());
-        blocks2.add(new BlockImpl());
+        blocks2.add(new BlockImpl("color2","material2"));
+        blocks2.add(new BlockImpl("color2","material2"));
+        blocks2.add(new BlockImpl("color2","material2"));
 
         CompositeBlock comp = new CompositeBlockImpl(blocks2);
         blocks.add(comp);
 
         Wall w = new Wall(blocks);
         System.out.println(w.count());
+        System.out.println(w.findBlockByColor("color1"));
+        System.out.println(w.findBlocksByMaterial("material1"));
     }
 }
