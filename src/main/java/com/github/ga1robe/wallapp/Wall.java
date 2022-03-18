@@ -35,12 +35,12 @@ class CompositeBlockImpl implements CompositeBlock {
 
     @Override
     public String getColor() {
-        return blocks.stream().map(b -> b.getColor()).collect(Collectors.joining(","));
+        return blocks.stream().map(b -> b.getColor()).findFirst().toString();
     }
 
     @Override
     public String getMaterial() {
-        return blocks.stream().map(b -> b.getMaterial()).collect(Collectors.joining(","));
+        return blocks.stream().map(b -> b.getMaterial()).findFirst().toString();
     }
 
     @Override
