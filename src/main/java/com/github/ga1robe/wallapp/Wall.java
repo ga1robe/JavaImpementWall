@@ -1,6 +1,7 @@
 package com.github.ga1robe.wallapp;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -30,7 +31,8 @@ class CompositeBlockImpl implements CompositeBlock {
     private List<Block> blocks;
 
     CompositeBlockImpl(List<Block> blocks) {
-        this.blocks = blocks;
+
+        this.blocks = (blocks == null ? Collections.emptyList() : blocks);
     }
 
     @Override
@@ -45,6 +47,7 @@ class CompositeBlockImpl implements CompositeBlock {
 
     @Override
     public List getBlocks() {
+
         return blocks;
     }
 }
